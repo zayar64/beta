@@ -1,1 +1,181 @@
+{% extends 'base.html' %}
 
+{% block title %} Home {% endblock %}
+
+{% block styles %}
+<style>
+
+    * {
+    margin: 0;
+    padding: 0;
+    border-box: none;
+    text-decoration: none;
+    text-transform: none;
+    }
+
+    .header {
+    background: #E9E9E9;
+    display: flex;
+    flex-direction: row;
+    height: 6%;
+    padding: 9px;
+    }
+
+    #nav-menu img{
+    border: 4px solid black;
+    border-radius: 29px;
+    }
+
+    #user {
+    text-align: center;
+    }
+
+    .toggle-btn {
+      cursor: pointer;
+      font-size: 1.4em;
+      margin-right: 10px;
+    }
+
+    #nav-menu {
+    display: none;
+    background: #E9E9E9;
+    height: 100%;
+    width: 50%;
+    overflow-x: hidden;
+    position: fixed;
+    z-index: 1;
+    padding-top: 20px;
+    top: 0;
+    left: 0;
+    }
+
+    .projects-menu {
+    display: none;
+    }
+
+    .main-menu a, .projects-menu a {
+    background: white;
+    padding: 10px;
+    color: black;
+    display: block;
+    border: 4px solid black;
+    border-radius: 10px;
+    margin: 30px;
+    }
+
+</style>
+  {% endblock %}
+
+  {% block content %}
+  <div  class="header"  id="header">
+  <p class="toggle-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i>
+  </p>
+  </div>
+  <p>Whoops! 😬 Nothing to show for this landing page 🤐</p>
+  <div id="nav-menu">
+    {% if user.is_authenticated %}
+    <div  class="main-menu">
+    <a onclick="showProjects()">Projects</a>
+    <a href="logout">Logout</a>
+    <a href="#" target="_blank">About Me</a>
+    <a id="switchMode" onclick="switchMode()"><i class="fa-solid fa-toggle-off"></i> Light Mode</a>
+    {% endif %}
+    </div>
+    <div  class="projects-menu">
+        <a onclick="backToMainMenu()">Main Menu</a>
+        <a href="carina" target="_blank">Chatbot</a>
+        <a href="weather" target="_blank">Weather</a>
+        <a href="quiz" target="_blank">Quiz</a>
+        <a href="crypto" target="_blank">Crypto</a>
+    </div>
+  {% if user.is_authenticated %}
+  <div  id="user">
+  <img src ="https://png.pngtree.com/png-vector/20220608/ourmid/pngtree-unnamed-user-avatar-icon-profile-png-image_4816337.png" width="50" height="50"></img>
+  <h3>{{ user.username }}</h3>
+  </div>
+  {% else %}
+  <img src="https://png.pngtree.com/png-vector/20220608/ourmid/pngtree-unknown-user-question-mark-about-png-image_4814970.png" width="50" height="50"></img>
+  {% endif %}
+  </div>
+
+
+  <script>
+    function toggleMenu() {
+      var menu = document.querySelector("#nav-menu");
+      var toggleBtn = document.querySelector(".toggle-btn");
+      if (menu.style.display != "none") {
+        menu.style.display = "none";
+        toggleBtn.innerHTML = `<i class="fa-solid fa-bars"></i>`
+        document.querySelector(".header").style.justifyContent = "start";
+      } else {
+        menu.style.display = "block";
+        toggleBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+        menu.style.display = "flex";
+        menu.style.flexDirection = "column";
+        menu.style.justifyContent = "space-between";
+        document.querySelector(".header").style.justifyContent = "end";
+      }
+    }
+
+    function backToMainMenu() {
+    var mainMenu = document.querySelector(".main-menu");
+    var projects = document.querySelector(".projects-menu");
+    mainMenu.style.display = "block";
+    projects.style.display = "none";
+    }
+
+    function showProjects() {
+    var mainMenu = document.querySelector(".main-menu");
+    var projects = document.querySelector(".projects-menu");
+    mainMenu.style.display = "none";
+    projects.style.display = "block";
+    }
+
+    let lightBg = "#E9E9E9"
+    let lightFg = "black"
+
+    let darkBg = "#161928"
+    let darkFg = "white"
+
+    let mode = "light"
+    let theme = "lightMode"
+    var navMenu = document.getElementById("nav-menu");
+    var navItems = document.querySelectorAll("a");
+    var body = document.querySelector("body");
+    function switchMode(){
+        if (mode==="light"){
+        document.getElementById("header").style.backgroundColor = darkBg;
+        document.getElementById("header").style.color = darkFg;
+        body.style.backgroundColor = lightFg;
+        body.style.color = darkFg;
+        navMenu.style.backgroundColor = "#191D23";
+        for (let i=0; i<navItems.length; i++){
+            navItems[i].style.backgroundColor = "black";
+            navItems[i].style.color = darkFg;
+            navItems[i].style.border = "3px solid white";
+        }
+
+
+        mode = "dark"
+        theme = "darkMode"
+        document.getElementById("switchMode").innerHTML = `<i class="fa-solid fa-toggle-off fa-rotate-180"></i> Dark Mode`
+        }else if (mode==="dark"){
+        document.getElementById("header").style.backgroundColor = lightBg;
+        document.getElementById("header").style.color = lightFg;
+        body.style.backgroundColor = darkFg;
+        body.style.color = lightFg;
+        navMenu.style.backgroundColor = "#DEDCDC";
+        for (let i=0; i<navItems.length; i++){
+            navItems[i].style.backgroundColor = "white";
+            navItems[i].style.color = lightFg;
+            navItems[i].style.border = "3px solid black";
+        }
+
+        mode = "light"
+        theme = "lightMode"
+        document.getElementById("switchMode").innerHTML = `<i class="fa-solid fa-toggle-off"></i> Light Mode`
+        }
+    }
+
+  </script>
+  {% endblock %}

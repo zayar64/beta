@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %} Login {% endblock %}
+
+{% block styles %}
+<style>
+
+    * {
+    margin-left: 4px;
+    padding: 0;
+    text-decoration: none;
+    text-transform: none;
+    border-box: none;
+    font-size: 20px;
+    }
+
+    body {
+    background: skyblue;
+    }
+
+    .template {
+    margin-top: 29%;
+    margin-left: 1%;
+    background: yellow;
+    width: 96%;
+    border: 5px solid black;
+    border-radius: 29px;
+    padding: 6%;
+    }
+
+    h1 {
+    margin-left: 20%;
+    font-size: 2rem;
+	}
+
+	.inputBox {
+	display: flex;
+	flex-direction: column;
+	width: 96%;
+	}
+
+	.inputBox input {
+	margin-top: 6%;
+	border: 2px solid black;
+	border-radius: 4px;
+	}
+
+	.inputBox button {
+	margin-top: 6%;
+	border: 2px solid black;
+	border-radius: 9px;
+	text-align: center;
+	background: skyblue;
+	color: black;
+	}
+
+	.option p{
+	margin-top: 4%;
+	}
+
+	#help:hover {
+	color: red;
+	text-decoration: none;
+	}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div  class="template">
+	{% if error_message %}
+        <div class="alert alert-danger" role="alert">{{ error_message }}</div>
+      {% endif %}
+	<form  class="inputBox" method="post">
+	    {% csrf_token %}
+	    <input type="text" class="form-control" name="username" placeholder= "Username" required>
+	    <input type="password" name="password" class="form-control" placeholder= "Password" id="password" required>
+	    <label><input type="checkbox" onchange="showPass()" id="checkbox"> Show password</label>
+	    <button type="submit">Login</button>
+	</form>
+	<div  class="option">
+	    <p>Forgot password ? <a href=""   id="help" onclick="help()">Help</a></p>
+	    <p>Don't have an account ? <a  href="register"  id="register">Register</a></p>
+	</div>
+</div>
+
+<script>
+    password = document.querySelector("#password");
+    checkbox = document.querySelector("#checkbox");
+    function showPass() {
+        if (checkbox.checked){
+            password.type = "text";
+        }else{
+            password.type = "password";
+        }
+    }
+
+	function help(){
+	alert("Relax And Try To Remember It :''\)")
+	}
+
+</script>
+{% endblock %}

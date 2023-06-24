@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %} Quiz {% endblock %}
+
+{% block styles %}
+<style>
+body {
+background: black;
+color: white;
+}
+
+h4 {
+text-align: center;
+text-transform: capitalize;
+font-size: 2rem;
+}
+
+#title {
+padding: 10px;
+border: 5px solid black;
+border-radius: 35px;
+background: #080121;
+color: goldenrod;
+}
+
+.genQ {
+display: flex;
+flex-direction: row;
+}
+
+.info {
+font-size: 1.5rem;
+text-align: center;
+margin-top: 200px;
+}
+
+.inputBox {
+text-align: center;
+display: none;
+margin-top: 200px;
+}
+
+.question, .correction {
+padding: 10px;
+font-size: 1.5rem;
+border: 5px solid black;
+border-radius: 35px;
+background: #161928;
+color: white;
+}
+
+.inputBox input, button, select{
+font-size: 1rem;
+text-align: center;
+margin-left: 0px;
+border: 3px solid black;
+border-radius: 15px;
+background: lightblue;
+}
+
+select {
+font-size: 1rem;
+text-align: center;
+margin-left: 0px;
+border: 3px solid black;
+background: lightblue;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h4 id="title">Select a category and number of questions</h4>
+<div class = "info">
+</div>
+<div class="inputBox">
+    <p class="question"></p>
+    <input type="text" id="input" placeholder="Answer here">
+    <button class="check" onclick = "check()">Submit</button>
+</div>
+<br>
+<p  id="correction"></p>
+
+<form  class="genQ">
+    {%csrf_token%}
+    <select  class="category">
+        <option value = "Action movie">Action movie</option>
+        <option value = "Boxing">Boxing</option>
+        <option value = "Breaking Bad">Breaking Bad</option>
+        <option value = "Capital cities">Capital cities</option>
+        <option value = "Christmas">Christmas</option>
+        <option value = "Comedy">Comedy</option>
+        <option value = "Cricket">Cricket</option>
+        <option value = "Disney">Disney</option>
+        <option value = "Doctor Who">Doctor Who</option>
+        <option value = "Easy pub">Easy pub</option>
+        <option value = "Family pub">Family pub</option>
+        <option value = "Food and drink">Food and drink</option>
+        <option value = "Football">Football</option>
+        <option value = "Friends">Friends</option>
+        <option value = "Game of Thrones">Game of Thrones</option>
+        <option value = "General knowledge">General knowledge</option>
+        <option value = "Geography">Geography</option>
+        <option value = "Golf">Golf</option>
+        <option value = "Harry Potter">Harry Potter</option>
+        <option value = "James Bond">James Bond</option>
+        <option value = "Kids general knowledge">Kids general knowledge</option>
+        <option value = "Marvel">Marvel</option>
+        <option value = "Music">Music</option>
+        <option value = "Nature">Nature</option>
+        <option value = "Netflix">Netflix</option>
+        <option value = "Peaky Blinders">Peaky Blinders</option>
+        <option value = "Politics">Politics</option>
+        <option value = "Sci-Fi">Sci-Fi</option>
+        <option value = "Science">Science</option>
+        <option value = "Soaps">Soaps</option>
+        <option value = "Sport">Sport</option>
+        <option value = "TV">TV</option>
+        <option value = "Technology">Technology</option>
+        <option value = "Tennis">Tennis</option>
+        <option value = "The Crown">The Crown</option>
+        <option value = "The Simpsons">The Simpsons</option>
+        <option value = "Tie breaker">Tie breaker</option>
+        <option value = "Travel">Travel</option>
+        <option value = "True or false">True or false</option>
+        <option value = "WWE Wrestling">WWE Wrestling</option>
+    </select>
+    <select class="questionsLength">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+    </select>
+    <button type="submit">Generate Questions</button>
+</form>
+
+<script>
+let questions;
+let answers;
+let score = 0;
+let count = 0;
+let questionsLength;
+
+async function end_quiz(){
+    await delay(1000);
+    document.querySelector("#input").style.display = "none";
+    document.querySelector(".check").style.display = "none";
+    document.querySelector(".question").innerHTML = `You got ${score} questions correct in ${questionsLength} questions`;
+    document.querySelector("#correction").style.display = "none";
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function nextQ(){
+    document.querySelector("#input").disabled = true;
+    document.querySelector(".check").disabled = true;
+    await delay(1000);
+    document.querySelector(".question").innerHTML = `${count+1}. ${questions[count]}`;
+    document.querySelector("#correction").classList.remove("correction");
+    document.querySelector("#correction").innerHTML = "";
+    document.querySelector("#input").disabled = false;
+    document.querySelector(".check").disabled = false;
+}
+
+function check(){
+    let answer = document.getElementById("input").value.trim();
+	let correction = document.querySelector("#correction");
+	correction.classList.add("correction");
+	const pattern = new RegExp(`\\b${answer.toLowerCase()}\\b`);
+	 if (pattern.test(answers[count].toLowerCase()) && answer != ""){
+	 correction.innerHTML = `Correct! The answer is ${answers[count]}`;
+	 score += 1;
+	 }else{
+	 correction.classList.add("correction");
+	 correction.innerHTML = `Incorrect! The answer is ${answers[count]}`;
+	 }
+	 document.getElementById("input").value = "";
+     count += 1;
+     if (count == questionsLength){
+         end_quiz()
+     }else{
+         nextQ();
+     }
+}
+
+document.querySelector(".genQ").addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    let category = document.querySelector(".category").value;
+    questionsLength = document.querySelector(".questionsLength").value;
+    document.querySelector("h4").style.display = "none";
+    document.querySelector("select").style.display = "none";
+    document.querySelector(".genQ").style.display = "none";
+    document.querySelector(".info").innerHTML = `<p>Generating ${category} Questions, Please Wait!</p>`;
+
+    fetch('', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+          'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          'category': category
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+          questions = data.questions;
+          answers = data.answers;
+          const title = data.title;
+          document.querySelector("h4").style.display = "block";
+          document.querySelector("h4").innerHTML = category.toUpperCase()+" Quizzes";
+          document.querySelector(".question").innerHTML = `${count+1}. ${questions[count]}`;
+          document.querySelector(".info").style.display = "none";
+          document.querySelector(".inputBox").style.display = "block";
+      });
+});
+
+</script>
+{% endblock %}

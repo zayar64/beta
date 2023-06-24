@@ -1,0 +1,404 @@
+{% extends 'base.html' %}
+
+{% block title %} Carina {% endblock %}
+
+{% block styles %}
+<style>
+    body, html {
+      height: 100%;
+    }
+
+    .card-header {
+    diaplay: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background: #E9E9E9;
+    color: black;
+    width: 100%;
+    height: 75px;
+    margin-top: 0;
+    position: fixed;
+    }
+    
+    .card-header img{
+    border: 4px solid black;
+    border-radius: 50%;
+    }
+    
+    .images img{
+    top:10 px;
+    border: 3px solid black;
+    border-radius: 50%;
+    padding: 3px;
+    }
+
+    .card-header p{
+    top: 10px;
+    right: 20px;
+    border-radius: 20px;
+    position: fixed;
+    font-size: 1.5rem;
+    }
+    
+    #nav-menu {
+    display: none;
+    background: #E9E9E9;
+    height: 100%;
+    width: 50%;
+    overflow-x: hidden;
+    position: fixed;
+    z-index: 1;
+    padding-top: 20px;
+    top: 0;
+    left: 0;
+    }
+    
+    .projects-menu {
+    display: none;
+    }
+    
+    .main-menu a, .projects-menu a {
+    background: white;
+    padding: 10px;
+    color: black;
+    display: block;
+    border: 4px solid black;
+    border-radius: 10px;
+    margin: 30px;
+    }
+
+    .messages-box {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .messages-list {
+      padding-left: 0;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      list-style: none;
+    }
+
+    .message-text {
+      padding: 0;
+      border-radius: 5px;
+    }
+
+    .sent {
+      align-self: flex-end;
+    }
+
+    .received {
+      align-self: flex-start;
+    }
+
+    .message-form {
+      display: flex;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 10px;
+      background-color: #E9E9E9;
+      color: black;
+    }
+
+    .message-input {
+      flex: 1;
+      border-radius: 0;
+      border-right: none;
+      border-radius: 10px;
+    }
+
+    .btn-send {
+      border-radius: 10px;
+    }
+
+    .btn {
+    background: skyblue;
+    }
+
+    .chat-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-sender {
+    display: flex;
+    flex-direction: row;
+    }
+
+    .images {
+    border-radius: 50%;
+    }
+
+    .lightMode {
+    width: 100%;
+    border-radius: 9px;
+    margin-left: 10px;
+    background-color: #E9E9E9;
+    color: black;
+    }
+
+    #darkMode {
+    width: 100%;
+    border-radius: 9px;
+    margin-left: 10px;
+    background-color: #161928;
+    color: white;
+    }
+
+    #lightMode {
+    width: 100%;
+    border-radius: 9px;
+    margin-left: 10px;
+    background-color: #E9E9E9;
+    color: black;
+    }
+
+    .texts {
+    padding: 10px 10px 10px 10px;
+    }
+
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="chat-container">
+    <div  class="card flex-grow-1" id="mainBox">
+        <div  class="card-header" id="card-header">
+        <img src="https://png.pngtree.com/png-vector/20220608/ourmid/pngtree-unnamed-user-avatar-icon-profile-png-image_4816337.png" width="50" height="50"></img>
+          <p class="toggle-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i>
+  </p>
+  <div id="nav-menu">
+    {% if user.is_authenticated %}
+    <div  class="main-menu">
+    <a onclick="showProjects()">Projects</a>
+    <a href="home">Back To Home</a>
+    <a id="switchMode" onclick="switchMode()"><i class="fa-solid fa-toggle-off"></i> Light Mode</a>
+    {% endif %}
+    </div>
+    
+    <div  class="projects-menu">
+        <a onclick="backToMainMenu()">Main Menu</a>
+        <a href="weather" target="_blank">Weather</a>
+        <a href="quiz" target="_blank">Quiz</a>
+        <a href="crypto" target="_blank">Crypto</a>
+    </div>
+  </div>
+  </div>
+        <br><br><br>
+        <div  class="card-body message-box">
+            <ul  class="list-unstyled messages-list">
+                    <!--{% for chat in chats %}
+                        {% if chat.user == request.user %}
+                            <li  class="message received">
+                            <div class="message-text">
+                                <div class="message-sender">
+                                    <div class="images">
+                                        <img src="https://png.pngtree.com/png-vector/20220608/ourmid/pngtree-unnamed-user-avatar-icon-profile-png-image_4816337.png" width="29" height="29"></img>
+                                    </div>
+                                    <div class="lightMode" id=${theme}>
+                                        <div class="texts">
+                                            {{chat.message}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li> 
+                        
+                         <li class="message received">
+                             <div class="message-text">
+                                 <div class="message-sender">
+                                     <div class="images">
+                                         <img src="https://icon-library.com/images/virtual-assistant-icon/virtual-assistant-icon-25.jpg" width="29" height="29"></img>
+                                     </div>
+                                     <div class="lightMode" id=${theme}>
+                                         <div class="texts">
+                                            {{chat.response}}
+                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                            
+                        {% endif %}
+                    {% endfor %}-->
+            </ul>
+        </div>
+        <br><br><br><br><br><br>
+    </div>
+    <form  class="message-form">
+        {%csrf_token%}
+        <div  class="input-group">
+            <input type="text"  class="form-control message-input" placeholder="Enter your message . . .">
+            <div  class="input-group-append">
+                <button type= "submit"  class="btn btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<script>
+
+      const messagesList = document.querySelector('.messages-list');
+  const messageForm = document.querySelector('.message-form');
+  const messageInput = document.querySelector('.message-input');
+
+    const container = document.getElementById("mainBox")
+
+    function toggleMenu() {
+      var menu = document.querySelector("#nav-menu");
+      var toggleBtn = document.querySelector(".toggle-btn");
+      if (menu.style.display === "block") {
+        menu.style.display = "none";
+        toggleBtn.innerHTML = `<i class="fa-solid fa-bars"></i>`
+      } else {
+        menu.style.display = "block";
+        toggleBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+      }
+    }
+    
+    function backToMainMenu() {
+    var mainMenu = document.querySelector(".main-menu");
+    var projects = document.querySelector(".projects-menu");
+    mainMenu.style.display = "block";
+    projects.style.display = "none";
+    }
+    
+    function showProjects() {
+    var mainMenu = document.querySelector(".main-menu");
+    var projects = document.querySelector(".projects-menu");
+    mainMenu.style.display = "none";
+    projects.style.display = "block";
+    }
+    
+    let lightBg = "#E9E9E9"
+    let lightFg = "black"
+
+    let darkBg = "#161928"
+    let darkFg = "white"
+
+    let mode = "light"
+    let theme = "lightMode"
+    var navMenu = document.getElementById("nav-menu");
+    var navItems = document.querySelectorAll("a");
+    var body = document.querySelector("body");
+    function switchMode(){
+        const lightMode = document.getElementsByClassName("lightMode")
+        if (mode=="light"){
+        document.getElementById("card-header").style.backgroundColor = darkBg;
+        document.getElementById("card-header").style.color = darkFg;
+        container.style.backgroundColor = "black";
+        for (let i=0; i<lightMode.length; i++){
+        lightMode[i].style.backgroundColor = darkBg;
+        lightMode[i].style.color = darkFg;
+        }
+        for (let i=0; i<navItems.length; i++){
+        navItems[i].style.backgroundColor = lightFg;
+        navItems[i].style.color = darkFg;
+        navItems[i].style.border = "3px solid white";
+        }
+        messageForm.style.backgroundColor = darkBg;
+        messageInput.style.backgroundColor = darkBg;
+        messageInput.style.color = darkFg;
+        navMenu.style.background = "#191D23";
+        document.querySelector('.btn').style.backgroundColor = lightBg;
+        mode = "dark"
+        theme = "darkMode"
+        document.getElementById("switchMode").innerHTML = `<i class="fa-solid fa-toggle-off fa-rotate-180"></i> Dark Mode`
+        }else if (mode=="dark"){
+        document.getElementById("card-header").style.backgroundColor = lightBg;
+        document.getElementById("card-header").style.color = lightFg;
+        container.style.backgroundColor = "white";
+        for (let i=0; i<lightMode.length; i++){
+        lightMode[i].style.backgroundColor = lightBg;
+        lightMode[i].style.color = lightFg;
+        }
+        for (let i=0; i<navItems.length; i++){
+        navItems[i].style.backgroundColor = darkFg;
+        navItems[i].style.color = lightFg;
+        navItems[i].style.border = "3px solid black";
+        }
+        messageForm.style.backgroundColor = lightBg;
+        messageInput.style.backgroundColor = lightBg;
+        messageInput.style.color = lightFg;
+        navMenu.style.background = "#DCDCDC";
+        document.querySelector(".btn").style.backgroundColor = "skyblue";
+        mode = "light"
+        theme = "lightMode"
+        document.getElementById("switchMode").innerHTML = `<i class="fa-solid fa-toggle-off"></i> Light Mode`
+        }
+    }
+
+  messageForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const message = messageInput.value.trim();
+    if (message.length === 0) {
+      return;
+    }
+    const messageItem = document.createElement('li');
+    messageItem.classList.add('message', 'sent');
+    messageItem.innerHTML = `
+        <div class="message-text">
+            <div class="message-sender">
+                <div class="images">
+                    <img src="https://png.pngtree.com/png-vector/20220608/ourmid/pngtree-unnamed-user-avatar-icon-profile-png-image_4816337.png" width="29" height="29"></img>
+                </div>
+                <div class="lightMode" id=${theme}>
+                    <div class="texts">
+                        ${message}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    messagesList.appendChild(messageItem);
+
+    messageInput.value = 'Searching . . .';
+    messageInput.disabled = true;
+    document.querySelector('.btn').disabled = true;
+
+    fetch('', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'message': message
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        const response = data.response;
+        const messageItem = document.createElement('li');
+        messageItem.classList.add('message', 'received');
+        messageItem.innerHTML = `
+        <div class="message-text">
+            <div class="message-sender">
+                <div class="images">
+                  <img src="https://icon-library.com/images/virtual-assistant-icon/virtual-assistant-icon-25.jpg" width="29" height="29"></img>
+                </div>
+                <div class="lightMode" id=${theme}>
+                    <div class="texts">
+                        ${response}
+                    </div>
+                </div>
+            </div>
+        </div>
+          `;
+        messagesList.appendChild(messageItem);
+        messageInput.value = '';
+        messageInput.disabled = false
+        document.querySelector('.btn').disabled = false;
+      });
+  });
+
+</script>
+{% endblock %}

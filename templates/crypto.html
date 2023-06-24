@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block title %} Crypto {% endblock %}
+
+{% block styles %}
+<style>
+* {
+    background: white;
+}
+
+#codeInput {
+margin-left: 2%;
+}
+
+#codeInput input {
+width: 10%;
+}
+
+.codeNum {
+display: flex;
+flex-direction: row;
+justify-content: space-around;
+}
+
+.user {
+    width: 96%;
+    background: #12043E;
+    color: #F25C05;
+    margin-left: 2%;
+    margin-top: 2%;
+    border-radius: 5px;
+}
+
+.Btn {
+    display: none;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.encryptBtn{
+    background: #12043E;
+    color: #F25C05;
+    margin-left: 10%;
+    margin-top: 20px;
+    font-size: 0.75rem;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+.encryptBtn:hover {
+    /*background: #A82F01;*/
+    background: white;
+}
+
+.decryptBtn{
+    background: #12043E;
+    color: #F25C05;
+    margin-right: 10%;
+    margin-top: 20px;
+    font-size: 0.75rem;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+.decryptBtn:hover {
+    background: white;
+}
+
+.result {
+    width: 98%;
+    margin-left: 1%;
+    margin-top: 0px;
+    border-radius: 5px;
+}
+
+.result label {
+    color: black;
+    margin-left: 2%;
+}
+
+.result textarea{
+    background: #12043E;
+    color: #F25C05
+}
+
+.clipboard {
+    display: flex;
+}
+
+#copy {
+    font-size: 2rem;
+    margin-top: 10px;
+    margin-left: 80%;
+    border: 5px solid black;
+    border-radius: 10px;
+    position: fixed;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<form  class="genCode">
+{% csrf_token %}
+<div  id="codeInput">
+<div>
+<label>Select Your Language : </label>
+<select  class="language">
+    <option value="Mixed">Mix All</option>
+    <option value="English">English</option>
+    <option value="Myanmar">Myanmar</option>
+</select>
+</div>
+<label>Enter two code numbers (1-83)</label>
+<div  class="codeNum">
+<input type="number"  id="code1">
+<input type="number" id="code2">
+<button type="submit">OK</button>
+</div>
+</div>
+</form>
+<textarea class="user" id="user" rows="10" placeholder="Your input..."></textarea>
+<div class="Btn">
+<button onclick="encrypt()" class="encryptBtn">Encrypt</button>
+<button onclick="decrypt()" class="decryptBtn">Decrypt</button>
+</div>
+
+<div class="result">
+<label id="resultLabel"></label>
+<br>
+<textarea class="result" id="result" rows="10" disabled></textarea>
+</div>
+<div class="clipboard">
+<p id="copied" disabled></p>
+<button onclick="copy()" id="copy"><i class="fa-solid fa-copy"></i></button>
+</div>
+
+<script>
+
+btn = document.querySelector(".Btn")
+var kwList;
+var codeList;
+
+let result = document.getElementById("result");
+let resultLabel = document.getElementById("resultLabel");
+
+function encrypt() {
+  	let prompt = document.getElementById("user").value;
+	if (prompt == ""){
+	    document.getElementById("decryptBtn").disabled = true;
+	}
+    let promptList = prompt.split("")
+    let encrypted = [];
+    let indices = [];
+    for (let i = 0; i < promptList.length; i++) {
+      indices.push(kwList.indexOf(promptList[i]));
+    }
+    for (let i = 0; i < indices.length; i++) {
+      encrypted.push(codeList[indices[i]]);
+    }
+    if (encrypted.join('') === ""){
+    resultLabel.innerHTML = "Encryption Failed!";
+    result.innerHTML = `Unknown encryption input => \"${prompt}\"`;
+    }else{
+    resultLabel.innerHTML = "Encrypted your input:";
+    result.innerHTML = encrypted.join('');
+    }
+    document.getElementById("user").value = "";
+}
+
+function decrypt() {
+    	let prompt = document.getElementById("user").value;
+    if (prompt == ""){
+	    document.getElementById("decryptBtn").disabled = true;
+	}
+    let promptList = prompt.match(/.{1,7}/g);
+    let decrypted = [];
+    let indices = [];
+    for (let i = 0; i < promptList.length; i++) {
+      indices.push(codeList.indexOf(promptList[i]));
+    }
+    for (let i = 0; i < indices.length; i++) {
+      decrypted.push(kwList[indices[i]]);
+    }
+
+    if (promptList.every(item => codeList.includes(item))){
+    result.innerHTML = decrypted.join("");
+    resultLabel.innerHTML = "Decrypted your code:";
+    document.getElementById("user").value = "";
+    }else{
+    resultLabel.innerHTML = "Decryption Failed!";
+    result.innerHTML = "Unknown decryption code => \""+prompt+"\"";
+    document.getElementById("user").value = "";
+    }
+    }
+
+function copyToClipboard(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+  copiedMsg = document.getElementById("copied");
+  if (textarea.value != ""){
+      showMessage("Copied to clipboard", 3000);
+  }
+}
+
+function copy(){
+const textToCopy = document.getElementById('result').value;
+copyToClipboard(textToCopy);
+}
+
+function showMessage(message, duration) {
+      const popupMessage = document.getElementById('copied');
+      popupMessage.textContent = message;
+      popupMessage.style.display = 'block';
+
+      setTimeout(function() {
+        popupMessage.style.display = 'none';
+      }, duration);
+    }
+
+document.querySelector(".genCode").addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const code1 = document.querySelector("#code1").value;
+    const code2 = document.querySelector("#code2").value;
+    const language = document.querySelector(".language").value;
+    fetch('', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'code1': code1,
+        'code2': code2,
+        'language': language.toLowerCase()
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+          kwList = data.kwList;
+          codeList = data.codeList;
+          document.querySelector("#codeInput").innerHTML = `Your selected code are ${code1} and ${code2}`;
+          btn.style.display = "block";
+          btn.style.display = "flex";
+      });
+});
+
+</script>
+{% endblock %}

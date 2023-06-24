@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %} Register {% endblock %}
+
+{% block styles %}
+<style>
+
+    * {
+    margin-left: 4px;
+    padding: 0;
+    text-decoration: none;
+    text-transform: none;
+    border-box: none;
+    font-size: 20px;
+    }
+
+    body {
+    background: skyblue;
+    }
+
+    .template {
+    margin-top: 9%;
+    margin-left: 1%;
+    background: yellow;
+    width: 96%;
+    border: 5px solid black;
+    border-radius: 29px;
+    padding: 6%;
+    }
+
+    h1 {
+    margin-left: 20%;
+    font-size: 2rem;
+	}
+
+	.inputBox {
+	display: flex;
+	flex-direction: column;
+	width: 96%;
+	}
+
+	.inputBox input, select {
+	margin-top: 6%;
+	border: 2px solid black;
+	border-radius: 4px;
+	padding-left: 6px;
+	}
+
+	.inputBox button {
+	margin-top: 6%;
+	border: 2px solid black;
+	border-radius: 9px;
+	text-align: center;
+	background: skyblue;
+	color: black;
+	}
+
+	.option p {
+	margin-top: 4%;
+	}
+
+	.option button {
+	border: 2px solid black;
+	border-radius: 10px;
+	padding: 5px;
+	margin-left: 4%;
+	}
+
+	#help:hover {
+	color: red;
+	text-decoration: none;
+	}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div  class="template">
+    {% if error_message %}
+        <div class="alert alert-danger" role="alert">{{ error_message }}</div>
+      {% endif %}
+	<form  class="inputBox" method="post">
+	    {% csrf_token %}
+	    <input type="text" class="form-control" placeholder="Username" name="username" required>
+	    <input type="email" class="form-control" placeholder= "Email" name ="email" required>
+	    <input type="password" class="form-control" placeholder= "Password" name="password" required id="password">
+	    <label><input type="checkbox" onchange="showPass()" id="checkbox"> Show password</label>
+	    <!--<label for="birthday">Birthday : <input type="date" class="form-control" placeholder="Birthday" name="birthday" required></label>
+        <select class="form-control" name="gender" required>
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>-->
+	    <button>Register</button>
+	</form>
+	<div  class="option">
+	    <p>Generate password ? <button onclick="genPass()">Generate</button></p>
+	    <p>Already have an account ? <a  href="login"  id="register">Login</a></p>
+	</div>
+</div>
+
+<script>
+    password = document.querySelector("#password");
+    checkbox = document.querySelector("#checkbox");
+    function showPass() {
+        if (checkbox.checked){
+            password.type = "text";
+        }else{
+            password.type = "password";
+        }
+    }
+
+	  function genPass() {
+    var char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=/\?|<>[]";
+    var passwordLength = 8;
+    var password = "";
+
+    for (let i = 0; i <= passwordLength; i++) {
+        var randomNum = Math.floor(Math.random() * char.length);
+        password += char.substring(randomNum, randomNum +1);
+    }
+
+    document.getElementById("password").value = password;
+}
+
+</script>
+{% endblock %}
