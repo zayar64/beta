@@ -24,6 +24,8 @@ from nltk.tokenize import word_tokenize
 from bs4 import BeautifulSoup
 import asyncio
 from nltk.corpus import stopwords
+
+from .weather import Weather
 class Assistant():
 
     def __init__(self, username):
@@ -74,22 +76,8 @@ class Assistant():
         self.last_message = None
         self.bot = None
         self.found_match = None
-        self.searching = None
         self.data = None
         self.city = None
-
-    def get_weather_data(self):
-        self.searching = True
-        self.city = self.get_city_name()
-        url = "https://api.openweathermap.org/data/2.5/weather"
-        api_key = "b4a00d30b961d7281d593a4d88b463e3"
-        params = {"q": self.city, "appid": api_key, "units": "metric"}
-        try:
-            url_response = requests.get(url, params=params)
-            self.data = json.loads(url_response.text)
-            return self.data
-        except:
-            self.bot = "Please check your internet connection!"
 
     def get_city_name(self):
         words = self.message.replace("?", "")
@@ -99,33 +87,12 @@ class Assistant():
             city = words[words.rindex("at")+3:]
         return city
 
-    def get_city_time(self):
-        self.city = self.get_city_name()
-        self.data = self.get_weather_data()
-        if "sys" in self.data:
-            timezone = pytz.timezone(pytz.country_timezones[self.data['sys']['country']][0])
-            current_hour = int(datetime.datetime.now(timezone).strftime('%H'))
-            current_min = int(datetime.datetime.now(timezone).strftime('%M'))
-            if current_min < 10:
-                current_min = f"0{current_min}"
-            if current_hour < 12:
-                current_hour = 0 + current_hour
-                current_time = f"{current_hour}:{current_min} A.M"
-            elif current_hour == 12:
-                current_time = f"{current_hour}:{current_min} P.M"
-            if current_hour > 13:
-                current_hour = current_hour - 12
-                current_time = f"{current_hour}:{current_min} P.M"
-            return f"Time in {self.city.upper()} is {current_time}"
-        else:
-            return f"Couldn't find time result for {self.city.upper}"
-
     def get_weather(self):
-        self.data = self.get_weather_data()
-        if "name" in self.data:
-            self.bot = f"-City<br>-{self.data['name']}<br><br>-Weather<br>-{self.data['weather'][0]['description'].capitalize()}<br><br>-Temperature<br>-{self.data['main']['temp']}°C<br><br>-Feels Like<br>-{self.data['main']['feels_like']}°C<br><br>-Humidity<br>-{self.data['main']['humidity']}%<br><br>-Wind<br>-{self.data['wind']['speed']} m/s"
+        data = Weather(self.get_city_name()).get_weather_data("weather")
+        if "name" in data:
+            self.bot = f"-City<br>-{data['name']}<br><br>-Weather<br>-{data['weather'][0]['description'].capitalize()}<br><br>-Temperature<br>-{data['main']['temp']}°C<br><br>-Feels Like<br>-{data['main']['feels_like']}°C<br><br>-Humidity<br>-{data['main']['humidity']}%<br><br>-Wind<br>-{data['wind']['speed']} m/s"
         else:
-            self.bot = f"Could not find weather information for '{self.city}'."
+            self.bot = f"Could not find weather information for '{self.get_city_name()}'."
 
     def remove_stopwords(self):
         token = word_tokenize(self.message)
@@ -195,28 +162,25 @@ class Assistant():
             if re.search(pattern, self.message):
                 self.found_match = True
                 self.bot = f"{random.choice(self.pairs[pair])}"
-            if "weather in" in self.message or "weather at" in self.message:
-                try:
-                    self.get_weather()
-                except:
-                    self.bot = "Please check your internet connection!"
-            if "time" in self.message and "in" in self.message or "time" in self.message and "at" in self.message:
-                self.city = self.get_city_name()
-                try:
-                    self.bot = self.get_city_time()
-                except Exception as e:
-                    self.bot = e
-                    self.bot = "Please check your internet connection!"
+        if "weather in" in self.message or "weather at" in self.message:
+            self.get_weather()
+        if "time" in self.message and "in" in self.message or "time" in self.message and "at" in self.message:
+             current_time = Weather(self.get_city_name()).get_current_time()
+             try:
+                 self.bot = f"Time in {self.get_city_name().upper()} is {current_time}"
+             except Exception as e:
+                self.bot = f"Couldn't find time result for '{self.get_city_name()}'"
+                self.bot = str(e)
 
-            wiki_q = ["who is", "what is", "do you know who", "do you know what"]
-            for i in wiki_q:
-                if self.message.lower().startswith(i):
-                    try:
-                        self.find_wiki()
-                    except Exception as e:
-                        self.bot =  "Please check your internet connection!"
-            if "ask me" in self.message:
-                self.ask_quiz()
+        wiki_q = ["who is", "what is", "do you know who", "do you know what"]
+        for i in wiki_q:
+            if self.message.lower().startswith(i):
+                try:
+                    self.find_wiki()
+                except Exception as e:
+                    self.bot =  "Please check your internet connection!"
+        if "ask me" in self.message:
+            self.ask_quiz()
 
         if self.bot != None:
             self.messages.append(self.message)
@@ -242,7 +206,3 @@ def carina(request):
             response = app.user_msg(message)
             return JsonResponse({'message': message, 'response': response})
     return render(request, 'carina.html', {'chats': chats})
-
-### Test functions here to see if the functions are properly working ###
-#while True:
-    #print(app.user_msg(input("Something : ")))
