@@ -6,8 +6,12 @@ class Weather:
     
     def __init__(self, location):
         self.location = location
+        unformat_hour = 10
 
     def get_weather_data(self, type):
+        # Getting data from openweathermap
+        # Type for where you want current weather or forecast
+        # According to url type have be one if them ( type = current, type = forecast )
         forecast_url = f"https://api.openweathermap.org/data/2.5/{type}"
         api_key = "b4a00d30b961d7281d593a4d88b463e3"
         params = {"q": self.location, "appid": api_key, "units": "metric"}
@@ -36,7 +40,7 @@ class Weather:
                 current_time = f"{current_hour}:{current_min} P.M"
             return current_time
 
-    def get_style(self, weather):
+    def get_style(self, weather, current_time):
         # Set weather category
         clear_sky = ["clear sky"]
         few_clouds = ["few clouds"]
@@ -47,27 +51,27 @@ class Weather:
         storm = ["squall", "thunderstorm", "sand", "tornado"]
         
         # Check weather result and generate weather icon
-        if weather in clear_sky  and 6 < unformat_hour < 18:
+        if weather in clear_sky  and 6 < current_time < 18:
             weather_image = "https://cdn-icons-png.flaticon.com/512/3222/3222691.png"
             theme = "#CADBE7"
             font_color = "black"
-        elif weather in clear_sky and unformat_hour > 18 or unformat_hour < 6:
+        elif weather in clear_sky and current_time >= 18 or weather in clear_sky and current_time < 6:
             weather_image = "https://cdn-icons-png.flaticon.com/512/1808/1808629.png"
             theme = "#072533"
             font_color = "white"
-        elif weather in few_clouds and unformat_hour < 18:
+        elif weather in few_clouds and current_time < 18:
             weather_image = "https://cdn-icons-png.flaticon.com/512/3222/3222807.png"
             theme = "#CADBE7"
             font_color = "black"
-        elif weather in few_clouds and unformat_hour > 18:
+        elif weather in few_clouds and current_time >= 18:
             weather_image = "https://cdn.icon-icons.com/icons2/960/PNG/512/1477521569_halloween_outline-18_icon-icons.com_74580.png"
             theme = "#072533"
             font_color = "white"
-        elif weather in cloudy and unformat_hour < 18:
+        elif weather in cloudy and current_time < 18:
             weather_image = "https://cdn-icons-png.flaticon.com/512/4834/4834559.png"
             theme = "#CADBE7"
             font_color = "black"
-        elif weather in cloudy and unformat_hour > 18:
+        elif weather in cloudy and current_time >= 18:
             weather_image = "https://cdn-icons-png.flaticon.com/512/4834/4834559.png"
             theme = "#072533"
             font_color = "white"
@@ -87,14 +91,14 @@ class Weather:
             weather_image = "https://cdn-icons-png.flaticon.com/512/1946/1946229.png"
             theme = "#072533"
             font_color = "white"
-        style = {"weather_image": weather_image, "theme": theme, "font_color": font_color}
-        return style
+        style_dict = {"weather_image": weather_image, "theme": theme, "font_color": font_color}
+        return style_dict
 
     def get_current_weather(self):
         
         try:
             data = self.get_weather_data("weather")
-            valid = True # To check if the self.location is valid
+            valid = True # To check if the location is valid
             location = self.location.title()
             weather = data['weather'][0]['description']
             temperature = f"{data['main']['temp']}°C"
@@ -102,11 +106,13 @@ class Weather:
             humidity = f"{data['main']['humidity']}%"
             wind = f"{data['wind']['speed']} m/s"
 
-            # Check the self.location time
+            # Check the location time
             current_time = self.get_current_time()
             date = datetime.datetime.now(timezone).strftime('%Y-%m-%d')
             
-            style = self.get_style(weather)
+            print(weather)
+            print(unformat_hour)
+            style = self.get_style(weather, unformat_hour)
             weather_image = style["weather_image"]
             theme = style["theme"]
             font_color = style["font_color"]
@@ -126,6 +132,8 @@ class Weather:
             forecast_temp = []
             forecast_date = []
             forecast_hour = []
+
+            # Getting each wanted weather results
             for i in results:
                 forecast_weather.append(i["weather"][0]["description"])
                 forecast_temp.append(i['main']['temp'])
@@ -144,28 +152,53 @@ class Weather:
                 forecast_hour = forecast_hour - 12
                 forecast_time = f"{forecast_hour} P.M"
             
-            forecast_weather = [i for i in forecast_weather]
-            style = [self.get_style(i) for i in forecast_weather]
-            forecast_weather_image = [i["weather_image"] for i in style]
+            forecast_weather_image = []
+            theme = []
+            font_color = []
+
+            # Getting styles for each forecast with same time e.g every forecasted at 12 P.M(forecast_hour)
+            style = [self.get_style(i, forecast_hour) for i in forecast_weather]
+            
+            for i in style:
+                forecast_weather_image.append(i["weather_image"])
+                theme.append(i["theme"])
+                font_color.append(i["font_color"])
             
             forecast_weather = [i.title() for i in forecast_weather]
             
-            forecast_weather = [forecast_weather[i] for i in range(len(forecast_weather)) if (i+1)%8 == 0]
+            forecast_weather = self.reduce_list(forecast_weather)
             
-            forecast_temp = [forecast_temp[i] for i in range(len(forecast_temp)) if (i+1)%8 == 0]
+            forecast_temp = self.reduce_list(forecast_temp)
             
-            forecast_date = [forecast_date[i] for i in range(len(forecast_date)) if (i+1)%8 == 0]
+            forecast_date = self.reduce_list(forecast_date)
             
-            forecast_weather_image = [forecast_weather_image[i] for i in range(len(forecast_weather_image)) if (i+1)%8 == 0]
+            forecast_weather_image = self.reduce_list(forecast_weather_image)
             
-            theme = style[0]["theme"]
-            font_color = style[0]["font_color"]
+            theme = self.reduce_list(theme)
+            
+            font_color = self.reduce_list(font_color)
             
             self.forecast_results = {"weather": forecast_weather, "temp": forecast_temp, "date": forecast_date, "time": forecast_time, "weather_image": forecast_weather_image, 'theme': theme, 'font_color': font_color}
         except Exception as e:
             error = str(e)
             valid = False
             self.forecast_results = {"valid": valid, "error": error}
+
+    def reduce_list(self, mylist):
+        reduced = [mylist[i] for i in range(len(mylist)) if (i+1)%8 == 0]
+        return reduced
+
+
+### Test here ###
+## Remove comment them when to test on console 
+#while True:
+#    app = Weather(input("Test a city : "))
+#    app.get_current_weather()
+#    app.get_forecast_weather()
+#    print(app.current_results)
+#    print("\n")
+#    print(app.forecast_results)
+#    print("\n")
 
 def weather(request):
     if request.method == 'POST':
