@@ -59,6 +59,11 @@ margin-top: 29px;
 margin-left: 20px;
 }
 
+#mainBox #weather {
+justify-content: center;
+text-align: center;
+}
+
 .time {
 display: flex;
 flex-direction: row;
@@ -69,7 +74,7 @@ justify-content: space-around;
 margin-right: 10%;
 }
 
-.result {
+.result, .type {
 margin-top: 10px;
 width: 85%;
 border: 1px solid black;
@@ -79,8 +84,18 @@ display: flex;
 flex-direction: row;
 }
 
-.result .label {
+.type {
+margin-bottom: 10px;
+display: flex;
+justify-content: center;
+}
+
+.result .label{
 width: 30%;
+}
+
+.label img {
+margin-left: 9px;
 }
 
 </style>
@@ -95,16 +110,125 @@ width: 30%;
 </div>
 </form>
 <div  class="resultBox">
+    
 </div>
 
 <script>
 const formBox = document.querySelector(".formBox");
+const resultBox = document.querySelector(".resultBox");
 const btn = document.querySelector(".inputBox button");
+let currentWeather;
+let forecastWeather;
+let weatherStatus;
+
+function changeType() {
+    let weatherStatusLabel = document.querySelector(".type div");
+    if ( weatherStatus === "current"){
+        weatherStatusLabel.innerHTML = "Current Weather";
+        weatherStatus = "forecast";
+        getForecastWeather();
+    }else{
+        weatherStatusLabel.innerHTML = "5-Day Forecast";
+        weatherStatus = "current";
+        getCurrentWeather();
+    }
+}
+
+function getCurrentWeather() {
+        document.body.style.backgroundColor = currentWeather.theme;
+        document.body.style.color = currentWeather.font_color;
+        if (currentWeather.font_color === "white"){
+        btn.innerHTML = `<i class="fas fa-search" style="color: #ffffff;"></i>`
+        }else{
+        btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>`
+        }
+        document.querySelector("#location").style.backgroundColor = currentWeather.theme;
+        document.querySelector("#location").style.color = currentWeather.font_color;
+        resultBox.innerHTML = `<div class="type" onclick="changeType()">
+    <div>⬅️ 5-Day Forecast ➡️</div>
+</div>
+        <div  id="mainBox">
+        <h3>${currentWeather.location}</h3>
+        <div  id="mainResult">
+            <h2>${currentWeather.temperature}</h2>
+            <img src=${currentWeather.weather_image} width="100" height="100"></img>
+        </div>
+        <div class="time">
+        <h5>${currentWeather.date}</h5>
+        <h5>${currentWeather.current_time}</h5>
+        </div>
+    </div>
+    <div  class="result">
+        <div  class="label">Weather</div>
+        <div>: ${currentWeather.weather}</div>
+    </div>
+    <div  class="result">
+        <div  class="label">Feels Like</div>
+        <div>: ${currentWeather.feels_like}</div>
+    </div>
+    <div  class="result">
+        <div  class="label">Humidity</div>
+        <div>: ${currentWeather.humidity}</div>
+    </div>
+    <div  class="result">
+        <div  class="label">Wind</div>
+        <div>: ${currentWeather.wind}</div>
+    </div>
+    `;
+}
+
+function getForecastWeather(){
+    document.body.style.backgroundColor = forecastWeather.theme;
+        document.body.style.color = forecastWeather.font_color;
+        document.querySelector("#location").style.backgroundColor = forecastWeather.theme;
+        document.querySelector("#location").style.color = forecastWeather.font_color;
+        if (forecastWeather.font_color === "white"){
+        btn.innerHTML = `<i class="fas fa-search" style="color: #ffffff;"></i>`
+        }else{
+        btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>`
+        }
+        resultBox.innerHTML = `<div class="type" onclick="changeType()">
+    <div>⬅️ Current Weather ➡️</div>
+</div>
+        <div  id="mainBox">
+        <h3>${currentWeather.location}</h3>
+        <div  id="mainResult">
+            <h2>${forecastWeather.temp[0]}°C</h2>
+            <img src=${forecastWeather.weather_image[0]} width="100" height="100"></img>
+        </div>
+        <div class="time">
+        <h5>2023-${forecastWeather.date[0]}</h5>
+        <h5>${forecastWeather.time}</h5>
+        </div>
+        <div  id="weather">${forecastWeather.weather[0]}
+        </div>
+    </div>
+    <div  class="result">
+        <div  class="label">${forecastWeather.date[1]}<br><img src=${forecastWeather.weather_image[1]} width="20" height="20"></img></div>
+        <div>${forecastWeather.temp[1]}°C<br>${forecastWeather.weather[1]}</div>
+    </div>
+    <div  class="result">
+        <div  class="label">${forecastWeather.date[2]}<br><img src=${forecastWeather.weather_image[2]} width="20" height="20"></img></div>
+        <div>${forecastWeather.temp[2]}°C<br>${forecastWeather.weather[2]}</div>
+    </div>
+    <div  class="result">
+        <div  class="label">${forecastWeather.date[3]}<br><img src=${forecastWeather.weather_image[3]} width="20" height="20"></img></div>
+        <div>${forecastWeather.temp[3]}°C<br>${forecastWeather.weather[3]}</div>
+    </div>
+    <div  class="result">
+        <div  class="label">${forecastWeather.date[4]}<br><img src=${forecastWeather.weather_image[4]} width="20" height="20"></img></div>
+        <div>${forecastWeather.temp[4]}°C<br>${forecastWeather.weather[4]}</div>
+    </div>
+    `;
+}
 
 formBox.addEventListener('submit', (event) => {
     event.preventDefault();
     
     const location = document.getElementById("location").value;
+    if (location === ""){
+        return;
+    }
     fetch('', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -115,49 +239,57 @@ formBox.addEventListener('submit', (event) => {
     })
       .then(response => response.json())
       .then(data => {
+        currentWeather = data.current_results;
+        forecastWeather = data.forecast_results;
+        weatherStatus = "current"
         document.querySelector("#location").value = "";
-        if (data.passed === false){
-    document.querySelector(".resultBox").innerHTML = `<div  id="mainBox">
-        <h3>Invalid location!</h3>
+        if (currentWeather.valid === false){
+        resultBox.innerHTML = `<div  id="mainBox">
+        <h3>Invalid location '${olocation}' !</h3>
         </div>`;
-    }else{
-        document.body.style.backgroundColor = data.theme;
-        document.body.style.color = data.font_color;
-        if (data.font_color === "white"){
+        }else{
+            document.body.style.backgroundColor = currentWeather.theme;
+        document.body.style.color = currentWeather.font_color;
+        if (currentWeather.font_color === "white"){
         btn.innerHTML = `<i class="fas fa-search" style="color: #ffffff;"></i>`
         }else{
         btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>`
         }
-        document.querySelector("#location").style.backgroundColor = data.theme;
-        document.querySelector(".resultBox").innerHTML = `<div  id="mainBox">
-        <h3>${data.location}</h3>
+        document.querySelector("#location").style.backgroundColor = currentWeather.theme;
+        document.querySelector("#location").style.color = currentWeather.font_color;
+        resultBox.innerHTML = `
+        <div class="type" onclick="changeType()">
+            <div>⬅️ 5-Day Forecast ➡️</div>
+        </div>
+        <div  id="mainBox">
+        <h3>${currentWeather.location}</h3>
         <div  id="mainResult">
-            <h2>${data.temperature}</h2>
-            <img src=${data.weather_image} width="100" height="100">
+            <h2>${currentWeather.temperature}</h2>
+            <img src=${currentWeather.weather_image} width="100" height="100"></img>
         </div>
         <div class="time">
-        <h5>${data.date}</h5>
-        <h5>${data.current_time}</h5>
+        <h5>${currentWeather.date}</h5>
+        <h5>${currentWeather.current_time}</h5>
         </div>
     </div>
     <div  class="result">
         <div  class="label">Weather</div>
-        <div>: ${data.weather}</div>
+        <div>: ${currentWeather.weather}</div>
     </div>
     <div  class="result">
         <div  class="label">Feels Like</div>
-        <div>: ${data.feels_like}</div>
+        <div>: ${currentWeather.feels_like}</div>
     </div>
     <div  class="result">
         <div  class="label">Humidity</div>
-        <div>: ${data.humidity}</div>
+        <div>: ${currentWeather.humidity}</div>
     </div>
     <div  class="result">
         <div  class="label">Wind</div>
-        <div>: ${data.wind}</div>
+        <div>: ${currentWeather.wind}</div>
     </div>
     `;
-    }
+        }
       });
 });
 </script>
