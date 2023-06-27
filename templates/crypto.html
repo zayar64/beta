@@ -8,6 +8,10 @@
     background: white;
 }
 
+form {
+text-align: center;
+}
+
 #codeInput {
 margin-left: 2%;
 }
@@ -20,6 +24,10 @@ width: 10%;
 display: flex;
 flex-direction: row;
 justify-content: space-around;
+}
+
+.container {
+display: none;
 }
 
 .user {
@@ -85,14 +93,13 @@ justify-content: space-around;
 
 .clipboard {
     display: flex;
+    justify-content: space-around;
 }
 
 #copy {
-    font-size: 2rem;
-    margin-top: 10px;
     margin-left: 80%;
-    border: 5px solid black;
-    border-radius: 10px;
+    border: 1px solid black;
+    border-radius: 4px;
     position: fixed;
 }
 </style>
@@ -118,6 +125,8 @@ justify-content: space-around;
 </div>
 </div>
 </form>
+
+<div  class="container">
 <textarea class="user" id="user" rows="10" placeholder="Your input..."></textarea>
 <div class="Btn">
 <button onclick="encrypt()" class="encryptBtn">Encrypt</button>
@@ -131,7 +140,9 @@ justify-content: space-around;
 </div>
 <div class="clipboard">
 <p id="copied" disabled></p>
-<button onclick="copy()" id="copy"><i class="fa-solid fa-copy"></i></button>
+<button onclick="copy()" id="copy"><img src="https://icon-library.com/images/copy-to-clipboard-icon/copy-to-clipboard-icon-24.jpg" width="20" height="20"></img></button>
+</div>
+
 </div>
 
 <script>
@@ -243,8 +254,8 @@ document.querySelector(".genCode").addEventListener('submit', (event) => {
           kwList = data.kwList;
           codeList = data.codeList;
           document.querySelector("#codeInput").innerHTML = `Your selected code are ${code1} and ${code2}`;
-          btn.style.display = "block";
           btn.style.display = "flex";
+          document.querySelector(".container").style.display = "block";
       });
 });
 
