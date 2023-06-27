@@ -42,3 +42,6 @@ def logout(request):
 @login_required(login_url='login')
 def home(request):
     return render(request, 'home.html')
+
+def projects(request):
+    return render(request, 'projects.html')
