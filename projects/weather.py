@@ -6,7 +6,6 @@ class Weather:
     
     def __init__(self, location):
         self.location = location
-        unformat_hour = 10
 
     def get_weather_data(self, type):
         # Getting data from openweathermap
