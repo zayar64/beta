@@ -55,23 +55,23 @@ class Weather:
             weather_image = "https://cdn-icons-png.flaticon.com/512/3222/3222691.png"
             theme = "#CADBE7"
             font_color = "black"
-        elif weather in clear_sky and current_time >= 18 or weather in clear_sky and current_time < 6:
+        elif weather in clear_sky and current_time >= 18 or weather in clear_sky and current_time < 6 or weather in clear_sky and current_time == 0:
             weather_image = "https://cdn-icons-png.flaticon.com/512/1808/1808629.png"
             theme = "#072533"
             font_color = "white"
-        elif weather in few_clouds and current_time < 18:
+        elif weather in few_clouds and 0 < current_time < 18:
             weather_image = "https://cdn-icons-png.flaticon.com/512/3222/3222807.png"
             theme = "#CADBE7"
             font_color = "black"
-        elif weather in few_clouds and current_time >= 18:
+        elif weather in few_clouds and current_time >= 18 or weather in few_clouds and current_time == 0:
             weather_image = "https://cdn.icon-icons.com/icons2/960/PNG/512/1477521569_halloween_outline-18_icon-icons.com_74580.png"
             theme = "#072533"
             font_color = "white"
-        elif weather in cloudy and current_time < 18:
+        elif weather in cloudy and 6 < current_time < 18:
             weather_image = "https://cdn-icons-png.flaticon.com/512/4834/4834559.png"
             theme = "#CADBE7"
             font_color = "black"
-        elif weather in cloudy and current_time >= 18:
+        elif weather in cloudy and current_time >= 18 or weather in cloudy and current_time >= 0:
             weather_image = "https://cdn-icons-png.flaticon.com/512/4834/4834559.png"
             theme = "#072533"
             font_color = "white"
@@ -110,8 +110,6 @@ class Weather:
             current_time = self.get_current_time()
             date = datetime.datetime.now(timezone).strftime('%Y-%m-%d')
             
-            print(weather)
-            print(unformat_hour)
             style = self.get_style(weather, unformat_hour)
             weather_image = style["weather_image"]
             theme = style["theme"]
@@ -189,8 +187,8 @@ class Weather:
         return reduced
 
 
-### Test here ###
-## Remove comment them when to test on console 
+## Test here ###
+## Remove comment to test in console
 #while True:
 #    app = Weather(input("Test a city : "))
 #    app.get_current_weather()
