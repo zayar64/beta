@@ -50,7 +50,7 @@ class Weather:
         storm = ["squall", "thunderstorm", "sand", "tornado"]
         
         # Check weather result and generate weather icon
-        if weather in clear_sky  and 6 < current_time < 18:
+        if weather in clear_sky  and 6 <= current_time < 18:
             weather_image = "https://cdn-icons-png.flaticon.com/512/3222/3222691.png"
             theme = "#CADBE7"
             font_color = "black"
@@ -66,7 +66,7 @@ class Weather:
             weather_image = "https://cdn.icon-icons.com/icons2/960/PNG/512/1477521569_halloween_outline-18_icon-icons.com_74580.png"
             theme = "#072533"
             font_color = "white"
-        elif weather in cloudy and 6 < current_time < 18:
+        elif weather in cloudy and 6 <= current_time < 18:
             weather_image = "https://cdn-icons-png.flaticon.com/512/4834/4834559.png"
             theme = "#CADBE7"
             font_color = "black"
